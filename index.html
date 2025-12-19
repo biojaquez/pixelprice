@@ -1,0 +1,1600 @@
+﻿<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>PixelPrice — by Sakate</title>
+
+  <script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
+
+  <style>
+    :root{
+      --bg:#f6f7fb;
+      --card:#ffffff;
+      --text:#111827;
+      --muted:#6b7280;
+      --border:#e5e7eb;
+      --blue:#1565c0;
+      --green:#2e7d32;
+      --red:#c62828;
+      --shadow: 0 10px 25px rgba(0,0,0,.08);
+      --radius: 14px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+      --sans: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family:var(--sans);
+      color:var(--text);
+      background:var(--bg);
+    }
+    header{
+      position:sticky;
+      top:0;
+      z-index:20;
+      background:rgba(246,247,251,.92);
+      backdrop-filter:saturate(1.2) blur(10px);
+      border-bottom:1px solid var(--border);
+    }
+    .wrap{
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 14px 14px;
+    }
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .brand h1{
+      font-size:16px;
+      margin:0;
+      letter-spacing:.2px;
+    }
+    .brand small{
+      color:var(--muted);
+    }
+
+    .controls{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:flex-end;
+    }
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      min-width: 130px;
+    }
+    label{
+      font-size:12px;
+      color:var(--muted);
+    }
+    input, select, button, textarea{
+      font: inherit;
+    }
+    input, select{
+      height: 45px;
+      border:1px solid var(--border);
+      border-radius:10px;
+      padding: 8px 10px;
+      background:#fff;
+      outline:none;
+    }
+    input:focus, select:focus, textarea:focus{
+      border-color: rgba(21,101,192,.55);
+      box-shadow: 0 0 0 4px rgba(21,101,192,.12);
+    }
+    .btn{
+      height: 38px;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      padding: 0 14px;
+      cursor:pointer;
+      font-weight:600;
+      letter-spacing:.2px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      user-select:none;
+    }
+    .btn:disabled{
+      opacity:.6;
+      cursor:not-allowed;
+    }
+    .btn-blue{ background:var(--blue); color:white; }
+    .btn-green{ background:var(--green); color:white; }
+    .btn-ghost{ background:#fff; border-color:var(--border); color:var(--text); }
+    .btn-red{ background:var(--red); color:white; }
+
+    .main{
+      max-width:1240px;
+      margin: 0 auto;
+      padding: 14px;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns: 380px 1fr;
+      gap: 14px;
+      align-items:start;
+    }
+    @media (max-width: 1040px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+
+    .panel{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .left{
+      padding: 12px;
+      max-height: calc(100vh - 110px);
+      overflow:auto;
+    }
+    .section{
+      border:1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px;
+      background: #fff;
+      margin-bottom: 12px;
+    }
+    .section h3{
+      margin:0 0 8px 0;
+      font-size: 13px;
+      letter-spacing:.15px;
+    }
+
+    .imgbox{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      min-height: 120px;
+      border-radius: 12px;
+      border: 1px dashed var(--border);
+      background: #fafafa;
+      overflow:hidden;
+      padding: 8px;
+    }
+    .imgbox img{
+      max-width:240px;
+      max-height:240px;
+      image-rendering:auto;
+    }
+
+    .pairs{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    .pair{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      border-bottom: 1px dashed rgba(229,231,235,.85);
+      padding-bottom: 6px;
+    }
+    .pair:last-child{ border-bottom:none; padding-bottom:0; }
+    .pair .k{
+      font-size:12.5px;
+      color: #1f2937;
+      max-width: 62%;
+      line-height:1.2;
+    }
+    .pair .v{
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #111827;
+      text-align:right;
+      max-width: 38%;
+      line-height:1.2;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .predRow{
+      display:grid;
+      grid-template-columns: 1fr 90px 60px;
+      gap:8px;
+      align-items:center;
+      margin-top: 6px;
+    }
+    .badge{
+      height: 24px;
+      border-radius: 999px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size: 12px;
+      font-weight: 800;
+      color:#fff;
+      letter-spacing:.2px;
+    }
+
+    .right{
+      padding: 12px;
+    }
+    .resultsRow{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:flex-end;
+      padding: 8px 0 12px 0;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 12px;
+    }
+    .resultsRow .field{ min-width: 220px; flex:1; }
+    .resultsRow select{ width:100%; }
+    .plotWrap{
+      display:grid;
+      gap:12px;
+    }
+    #plotPrice, #plotVol{
+      width:100%;
+      height: 360px;
+      border:1px solid var(--border);
+      border-radius: 12px;
+      overflow:hidden;
+      background:#fff;
+    }
+    .status{
+      display:none !important;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .status code{
+      font-family: var(--mono);
+      background:#fff;
+      border:1px solid var(--border);
+      padding: 4px 8px;
+      border-radius: 10px;
+    }
+    .modalBackdrop{
+      position:fixed;
+      inset:0;
+      background: rgba(17,24,39,.55);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding: 18px;
+      z-index:50;
+    }
+    .modal{
+      width: min(980px, 100%);
+      max-height: min(84vh, 760px);
+      overflow:hidden;
+      background:#fff;
+      border-radius: 16px;
+      border:1px solid rgba(229,231,235,.9);
+      box-shadow: 0 30px 70px rgba(0,0,0,.28);
+      display:flex;
+      flex-direction:column;
+    }
+    .modalHeader{
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .modalHeader h2{
+      margin:0;
+      font-size: 14px;
+      letter-spacing:.2px;
+    }
+    .modalBody{
+      padding: 12px 14px;
+      overflow:auto;
+    }
+    .modalFooter{
+      padding: 12px 14px;
+      border-top: 1px solid var(--border);
+      display:flex;
+      justify-content:flex-end;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    textarea{
+      width:100%;
+      min-height: 520px;
+      border:1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px;
+      resize:vertical;
+      font-size: 13px;
+      line-height:1.35;
+      background:#fff;
+      white-space:pre-wrap;
+    }
+    table{
+      width:100%;
+      border-collapse:collapse;
+      font-size: 13px;
+    }
+    th, td{
+      border-bottom: 1px solid var(--border);
+      padding: 8px 8px;
+      text-align:center;
+      white-space:nowrap;
+    }
+    th{
+      position:sticky;
+      top:0;
+      background:#fff;
+      z-index:1;
+      font-size: 12px;
+      color:#374151;
+    }
+    .pager{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .pager .leftP, .pager .rightP{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .pager input{
+      width: 90px;
+    }
+    .toast{
+      position:fixed;
+      right:14px;
+      bottom:14px;
+      z-index:60;
+      background:#111827;
+      color:#fff;
+      border-radius: 14px;
+      padding: 10px 12px;
+      font-size: 13px;
+      box-shadow: 0 18px 40px rgba(0,0,0,.25);
+      display:none;
+      max-width: 420px;
+      line-height:1.25;
+    }
+    .toast small{
+      display:block;
+      color: rgba(255,255,255,.75);
+      margin-top:4px;
+      font-family: var(--mono);
+      word-break:break-word;
+    }
+    .brand{
+      display:flex;
+      justify-content:center; 
+      align-items:center;  
+    }
+
+
+    .brandLogo{
+      height:48px;
+      max-height:48px;
+      width:auto;
+      object-fit:contain;
+    }
+
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="wrap">
+      <div class="topbar">
+        <div class="brand">
+        <img src="assets/logo.png" alt="PixelPrice" class="brandLogo">
+        </div>
+
+        <div class="controls">
+          <div class="field" style="min-width:240px">
+            <label for="nameInput">Buscar por nombre</label>
+            <input id="nameInput" type="text" placeholder="Ej: Trono" />
+          </div>
+
+          <div class="field" style="min-width:120px">
+            <label for="hotelSelect">Hotel</label>
+            <select id="hotelSelect">
+              <option value="com">com</option>
+              <option value="de">de</option>
+              <option value="es" selected>es</option>
+              <option value="fi">fi</option>
+              <option value="fr">fr</option>
+              <option value="it">it</option>
+              <option value="nl">nl</option>
+              <option value="br">br</option>
+              <option value="tr">tr</option>
+            </select>
+          </div>
+
+          <div class="field" style="min-width:120px">
+            <label for="daysInput">Días (aprox)</label>
+            <input id="daysInput" type="text" value="60" />
+          </div>
+
+          <button id="searchBtn" class="btn btn-ghost" title="Buscar">
+            🔎 Buscar
+          </button>
+
+          <button id="helpBtn" class="btn btn-blue" title="Ayuda">
+            ❓ Ayuda
+          </button>
+        </div>
+      </div>
+      <div class="resultsRow">
+          <div class="field">
+            <label for="resultsSelect">Resultados</label>
+            <select id="resultsSelect" disabled>
+              <option>—</option>
+            </select>
+          </div>
+
+          <button id="loadSelectedBtn" class="btn btn-green" disabled>
+            ✅ Cargar seleccionado
+          </button>
+
+          <button id="resetBtn" class="btn btn-ghost">
+            ♻️ Limpiar
+          </button>
+        </div>
+    </div>
+
+  </header>
+
+  <main class="main">
+    <div class="grid">
+      <aside class="panel left" id="leftPanel">
+        <div class="section">
+          <h3>Imagen del furni</h3>
+          <div class="imgbox">
+            <img id="furniImg" alt="" />
+          </div>
+          <div class="status" style="margin-top:8px">
+            <span id="imgStatus">—</span>
+            <code id="classnameCode">classname=—</code>
+          </div>
+        </div>
+
+        <div class="section">
+          <h3>Información</h3>
+          <div class="pairs" id="metaPairs"></div>
+          <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap">
+            <button id="openTableBtn" class="btn btn-green" style="flex:1" disabled>📋 Ver datos en tabla</button>
+          </div>
+        </div>
+
+        <div class="section">
+          <h3>Estadísticas de precio (créditos)</h3>
+          <div class="pairs" id="pricePairs"></div>
+        </div>
+
+        <div class="section">
+          <h3>Estadísticas de volumen de ventas</h3>
+          <div class="pairs" id="volPairs"></div>
+        </div>
+
+        <div class="section">
+          <h3>Predicción (próximos 30 días)</h3>
+          <div class="predRow">
+            <div style="font-size:13px; font-weight:600; color:#1f2937">Heurístico</div>
+            <div class="badge" id="predBadge">NEUTRO</div>
+            <div style="text-align:right; font-weight:700" id="predProb">50%</div>
+          </div>
+        </div>
+      </aside>
+      <section class="panel right">
+        <div class="plotWrap">
+          <div id="plotPrice"></div>
+          <div id="plotVol"></div>
+        </div>
+
+        <div class="status">
+          <span id="statusText">Listo.</span>
+          <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center">
+            <span>API base:</span>
+            <code id="apiBaseCode">https://habboapi.site</code>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+  <div class="modalBackdrop" id="helpModal">
+    <div class="modal">
+      <div class="modalHeader">
+        <h2>Ayuda — Cómo interpretar las estadísticas</h2>
+        <button class="btn btn-ghost" id="closeHelpBtn">Cerrar ✕</button>
+      </div>
+      <div class="modalBody">
+        <textarea id="helpTextArea" readonly></textarea>
+      </div>
+      <div class="modalFooter">
+        <button class="btn btn-blue" id="copyHelpBtn">Copiar texto</button>
+        <button class="btn btn-ghost" id="closeHelpBtn2">Cerrar</button>
+      </div>
+    </div>
+  </div>
+  <div class="modalBackdrop" id="tableModal">
+    <div class="modal">
+      <div class="modalHeader">
+        <h2>Datos usados para el gráfico</h2>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center">
+          <button class="btn btn-ghost" id="downloadCsvBtn">⬇️ Descargar CSV</button>
+          <button class="btn btn-ghost" id="closeTableBtn">Cerrar ✕</button>
+        </div>
+      </div>
+      <div class="modalBody">
+        <div style="overflow:auto; border:1px solid var(--border); border-radius:12px;">
+          <table>
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Precio</th>
+                <th>Ventas</th>
+                <th>Créditos</th>
+                <th>OpenOffers</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+
+        <div class="pager">
+          <div class="leftP">
+            <button class="btn btn-ghost" id="prevPageBtn">⟵ Anterior</button>
+            <button class="btn btn-ghost" id="nextPageBtn">Siguiente ⟶</button>
+            <span id="pageLabel">—</span>
+          </div>
+          <div class="rightP">
+            <span>Página:</span>
+            <input id="pageInput" type="number" min="1" value="1" />
+            <span id="totalPagesLabel">/ —</span>
+          </div>
+        </div>
+      </div>
+      <div class="modalFooter">
+        <button class="btn btn-green" id="closeTableBtn2">Listo</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const API_BASE = "https://habboapi.site"; // Documentación: habboapi.site :contentReference[oaicite:1]{index=1}
+    const ENDPOINT_MARKET_HISTORY = `${API_BASE}/api/market/history`;
+    const ENDPOINT_IMAGE = (classname) => `${API_BASE}/api/image/${encodeURIComponent(classname)}`;
+
+    const nameInput = document.getElementById("nameInput");
+    const hotelSelect = document.getElementById("hotelSelect");
+    const daysInput = document.getElementById("daysInput");
+    const apiKeyInput = document.getElementById("apiKeyInput");
+
+    const searchBtn = document.getElementById("searchBtn");
+    const helpBtn = document.getElementById("helpBtn");
+    const resultsSelect = document.getElementById("resultsSelect");
+    const loadSelectedBtn = document.getElementById("loadSelectedBtn");
+    const resetBtn = document.getElementById("resetBtn");
+
+    const statusText = document.getElementById("statusText");
+    const apiBaseCode = document.getElementById("apiBaseCode");
+
+    const furniImg = document.getElementById("furniImg");
+    const imgStatus = document.getElementById("imgStatus");
+    const classnameCode = document.getElementById("classnameCode");
+
+    const metaPairs = document.getElementById("metaPairs");
+    const pricePairs = document.getElementById("pricePairs");
+    const volPairs = document.getElementById("volPairs");
+
+    const openTableBtn = document.getElementById("openTableBtn");
+
+    const predBadge = document.getElementById("predBadge");
+    const predProb = document.getElementById("predProb");
+
+    const plotPriceDiv = document.getElementById("plotPrice");
+    const plotVolDiv = document.getElementById("plotVol");
+
+    const helpModal = document.getElementById("helpModal");
+    const closeHelpBtn = document.getElementById("closeHelpBtn");
+    const closeHelpBtn2 = document.getElementById("closeHelpBtn2");
+    const helpTextArea = document.getElementById("helpTextArea");
+    const copyHelpBtn = document.getElementById("copyHelpBtn");
+
+    const tableModal = document.getElementById("tableModal");
+    const closeTableBtn = document.getElementById("closeTableBtn");
+    const closeTableBtn2 = document.getElementById("closeTableBtn2");
+    const downloadCsvBtn = document.getElementById("downloadCsvBtn");
+
+    const tableBody = document.getElementById("tableBody");
+    const prevPageBtn = document.getElementById("prevPageBtn");
+    const nextPageBtn = document.getElementById("nextPageBtn");
+    const pageLabel = document.getElementById("pageLabel");
+    const pageInput = document.getElementById("pageInput");
+    const totalPagesLabel = document.getElementById("totalPagesLabel");
+
+    const toast = document.getElementById("toast");
+
+    apiBaseCode.textContent = API_BASE;
+
+    let searchResults = [];     
+    let dfCurrent = [];         
+    let dfView = [];            
+    let pageSize = 15;
+    let totalPages = 1;
+    let currentPage = 1;
+
+    let xBounds = null; // [minMs, maxMs]
+
+    function isLegacyFurni(item){
+      const cn = String(item?.ClassName ?? "").toLowerCase();
+      const fn = String(item?.FurniName ?? "").toLowerCase();
+      const line = String(item?.Line ?? "").toLowerCase();
+      const cat = String(item?.Category ?? "").toLowerCase();
+      const bad = ["nft","collectible","avatar","web3","token"];
+      if (bad.some(t => cn.includes(t))) return false;
+      if (bad.some(t => fn.includes(t))) return false;
+      if (bad.some(t => line.includes(t))) return false;
+      if (bad.some(t => cat.includes(t))) return false;
+      return true;
+    }
+
+    function isNA(x){
+      return x === null || x === undefined || (typeof x === "number" && Number.isNaN(x));
+    }
+
+    function fmtNum(x, decimals=2){
+      try{
+        if (isNA(x)) return "—";
+        const n = Number(x);
+        if (!Number.isFinite(n)) return "—";
+        if (Number.isInteger(n) && decimals === 0){
+          return n.toLocaleString("en-US");
+        }
+        return n.toLocaleString("en-US", {minimumFractionDigits: decimals, maximumFractionDigits: decimals});
+      }catch(e){
+        return "—";
+      }
+    }
+
+    function fmtInt(x){
+      try{
+        if (isNA(x)) return "—";
+        const n = Math.round(Number(x));
+        if (!Number.isFinite(n)) return "—";
+        return n.toLocaleString("en-US");
+      }catch(e){
+        return "—";
+      }
+    }
+
+    function fmtDate(d){
+      if (!d) return "—";
+      try{
+        const dt = new Date(d);
+        if (Number.isNaN(dt.getTime())) return "—";
+        const y = dt.getFullYear();
+        const m = String(dt.getMonth()+1).padStart(2,"0");
+        const day = String(dt.getDate()).padStart(2,"0");
+        return `${y}-${m}-${day}`;
+      }catch(e){
+        return "—";
+      }
+    }
+
+    function mean(arr){
+      const xs = arr.filter(v => Number.isFinite(v));
+      if (!xs.length) return NaN;
+      return xs.reduce((a,b)=>a+b,0) / xs.length;
+    }
+
+    function std(arr){
+      const xs = arr.filter(v => Number.isFinite(v));
+      if (xs.length < 2) return NaN;
+      const m = mean(xs);
+      const v = xs.reduce((a,b)=>a + (b-m)*(b-m), 0) / (xs.length - 1);
+      return Math.sqrt(v);
+    }
+
+    function median(arr){
+      const xs = arr.filter(v => Number.isFinite(v)).sort((a,b)=>a-b);
+      if (!xs.length) return NaN;
+      const mid = Math.floor(xs.length/2);
+      if (xs.length % 2) return xs[mid];
+      return (xs[mid-1] + xs[mid]) / 2;
+    }
+
+    function quantile(arr, q){
+      const xs = arr.filter(v => Number.isFinite(v)).sort((a,b)=>a-b);
+      if (!xs.length) return NaN;
+      const pos = (xs.length - 1) * q;
+      const base = Math.floor(pos);
+      const rest = pos - base;
+      if (xs[base+1] === undefined) return xs[base];
+      return xs[base] + rest * (xs[base+1] - xs[base]);
+    }
+
+    function sigmoid(z){
+      try{
+        return 1 / (1 + Math.exp(-z));
+      }catch(e){
+        return 0.5;
+      }
+    }
+
+    function labelFromDiff(diff, neutral){
+      if (diff > neutral) return "SUBE";
+      if (diff < -neutral) return "BAJA";
+      return "NEUTRO";
+    }
+
+    function predictHeuristico(df, horizon=30){
+      const y = df.map(r => Number(r.avgPrice)).filter(v => Number.isFinite(v));
+      if (y.length < 60){
+        return {label:"NEUTRO", prob:0.50};
+      }
+      const last = y[y.length - 1];
+      const y30 = (y.length > horizon) ? y[y.length - (horizon + 1)] : y[0];
+      const ret30 = (last - y30) / Math.max(1e-9, y30);
+
+      const k = Math.min(60, y.length);
+      const yy = y.slice(-k);
+      const x = Array.from({length:k}, (_,i)=>i);
+
+      const xMean = mean(x);
+      const yMean = mean(yy);
+      let num = 0, den = 0;
+      for (let i=0; i<k; i++){
+        num += (x[i]-xMean) * (yy[i]-yMean);
+        den += (x[i]-xMean) * (x[i]-xMean);
+      }
+      const slope = den ? (num/den) : ((yy[yy.length-1]-yy[0]) / Math.max(1, yy.length-1));
+
+      const pct = [];
+      for (let i=1;i<y.length;i++){
+        const prev = y[i-1];
+        const cur = y[i];
+        pct.push((cur - prev) / Math.max(1e-9, prev));
+      }
+      const vol = std(pct.slice(-60)) || 0.0;
+      const neutral = Math.max(0.015, 1.5 * vol);
+
+      const score = 2.0 * ret30 + 0.001 * slope;
+      const label = labelFromDiff(score, neutral);
+      let p = 0.5 + 0.5 * sigmoid(Math.abs(score) / Math.max(1e-6, neutral) - 1.0);
+      p = Math.min(0.95, Math.max(0.50, p));
+
+      return {label, prob: p};
+    }
+
+    function setPred(label, prob){
+      const color = (label === "SUBE") ? "var(--green)" : (label === "BAJA") ? "var(--red)" : "var(--blue)";
+      predBadge.style.background = `linear-gradient(180deg, rgba(255,255,255,.08), rgba(0,0,0,.08)), ${getComputedStyle(document.documentElement).getPropertyValue(color).trim() || "#1565c0"}`;
+      predBadge.textContent = label;
+      predProb.textContent = `${Math.round(prob*100)}%`;
+    }
+
+    let toastTimer = null;
+    function showToast(msg, detail=""){
+      toast.innerHTML = `
+        <div>${escapeHtml(msg)}</div>
+        ${detail ? `<small>${escapeHtml(detail)}</small>` : ""}
+      `;
+      toast.style.display = "block";
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(()=> toast.style.display="none", 3600);
+    }
+
+    function escapeHtml(s){
+      return String(s)
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    const META_KEYS = [
+      ["Nombre del furni","meta_nombre"],
+      ["Classname","meta_classname"],
+      ["Tipo","meta_tipo"],
+      ["Hotel","meta_hotel"],
+      ["Rango mostrado","meta_rango"],
+      ["Última actualización","meta_actualizado"],
+    ];
+    const PRICE_KEYS = [
+      ["Precio mínimo","p_min"],
+      ["Precio máximo","p_max"],
+      ["Precio promedio","p_prom"],
+      ["Mediana","p_med"],
+      ["Percentil 95","p_p95"],
+      ["Último precio (serie)","p_ult"],
+      ["Precio justo","p_reco"],
+      ["Número de inflaciones","inf_count"],
+      ["Número de bajadas forzadas","defl_count"],
+      ["Riesgo de volatilidad (%)","vol_risk"],
+      ["Sesgo (media - mediana)","bias_mm"],
+      ["Índice de inflación (%)","inf_rate"],
+      ["Índice de bajadas forzadas (%)","defl_rate"],
+    ];
+    const VOL_KEYS = [
+      ["Ventas totales","v_total"],
+      ["Ventas promedio por punto","v_prom"],
+      ["Máximo en un punto","v_max"],
+      ["Puntos en la serie","v_dias"],
+      ["Créditos totales","c_total"],
+      ["Liquidez (ventas por día)","liq_per_day"],
+      ["Presión vendedora (ofertas/ventas)","sell_pressure"],
+    ];
+
+    const stateVars = {
+      meta_nombre: "—",
+      meta_classname: "—",
+      meta_tipo: "—",
+      meta_hotel: "—",
+      meta_rango: "—",
+      meta_actualizado: "—",
+
+      p_min: "—",
+      p_max: "—",
+      p_prom: "—",
+      p_med: "—",
+      p_p95: "—",
+      p_ult: "—",
+
+      p_reco: "—",
+      inf_count: "—",
+      defl_count: "—",
+
+      p_trim: "—",
+      inf_rate: "—",
+      defl_rate: "—",
+      vol_risk: "—",
+      bias_mm: "—",
+
+      liq_per_day: "—",
+      sell_pressure: "—",
+
+      v_total: "—",
+      v_prom: "—",
+      v_max: "—",
+      v_dias: "—",
+      c_total: "—",
+    };
+
+    function renderPairs(container, keys){
+      container.innerHTML = "";
+      for (const [label, key] of keys){
+        const row = document.createElement("div");
+        row.className = "pair";
+        row.innerHTML = `
+          <div class="k">${escapeHtml(label)}</div>
+          <div class="v" id="${escapeHtml(key)}">${escapeHtml(stateVars[key] ?? "—")}</div>
+        `;
+        container.appendChild(row);
+      }
+    }
+
+    function setVar(key, val){
+      stateVars[key] = val;
+      const el = document.getElementById(key);
+      if (el) el.textContent = val;
+    }
+
+    function resetCards(){
+      for (const k of Object.keys(stateVars)){
+        setVar(k, "—");
+      }
+      furniImg.removeAttribute("src");
+      furniImg.alt = "";
+      imgStatus.textContent = "—";
+      classnameCode.textContent = "classname=—";
+      predBadge.style.background = "";
+      predBadge.textContent = "NEUTRO";
+      predProb.textContent = "50%";
+      dfCurrent = [];
+      dfView = [];
+      openTableBtn.disabled = true;
+      clearPlots();
+      statusText.textContent = "Listo.";
+    }
+    function clearPlots(){
+      xBounds = null;
+      const layoutCommon = {
+        margin: {l:50,r:18,t:42,b:46},
+        paper_bgcolor:"#fff",
+        plot_bgcolor:"#fff",
+        font: {family: "system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial", size: 12, color:"#111827"},
+        xaxis: {title: "Fecha", showgrid: true, gridcolor: "rgba(229,231,235,.75)", zeroline:false},
+        yaxis: {showgrid: true, gridcolor: "rgba(229,231,235,.75)", zeroline:false},
+      };
+      Plotly.newPlot(plotPriceDiv, [], {
+        ...layoutCommon,
+        title: {text:"Precio promedio", x:0.02, xanchor:"left"},
+        yaxis: {...layoutCommon.yaxis, title:"Créditos"},
+      }, {
+        displaylogo:false,
+        responsive:true,
+        modeBarButtonsToRemove: ["select2d","lasso2d","autoScale2d","resetScale2d"]
+      });
+      Plotly.newPlot(plotVolDiv, [], {
+        ...layoutCommon,
+        title: {text:"Volumen de ventas", x:0.02, xanchor:"left"},
+        yaxis: {...layoutCommon.yaxis, title:"Ventas"},
+      }, {
+        displaylogo:false,
+        responsive:true,
+        modeBarButtonsToRemove: ["select2d","lasso2d","autoScale2d","resetScale2d"]
+      });
+    }
+    function clampRange(minMs, maxMs, startMs, endMs){
+      let s = startMs;
+      let e = endMs;
+      if (!Number.isFinite(s) || !Number.isFinite(e)) return [minMs, maxMs];
+      if (s > e){ const tmp = s; s = e; e = tmp; }
+      const width = e - s;
+      const maxWidth = maxMs - minMs;
+      if (width > maxWidth) return [minMs, maxMs];
+      if (s < minMs){
+        s = minMs;
+        e = minMs + width;
+      }
+      if (e > maxMs){
+        e = maxMs;
+        s = maxMs - width;
+      }
+      return [s, e];
+    }
+    function hookClampOnRelayout(div){
+      div.on("plotly_relayout", (ev)=>{
+        if (!xBounds) return;
+        const [minMs, maxMs] = xBounds;
+        let r0 = ev["xaxis.range[0]"];
+        let r1 = ev["xaxis.range[1]"];
+        if (!r0 || !r1) return;
+        const s = new Date(r0).getTime();
+        const e = new Date(r1).getTime();
+        if (!Number.isFinite(s) || !Number.isFinite(e)) return;
+        const [cs, ce] = clampRange(minMs, maxMs, s, e);
+        if (cs !== s || ce !== e){
+          Plotly.relayout(div, {
+            "xaxis.range": [new Date(cs), new Date(ce)]
+          });
+        }
+      });
+    }
+    function plot(df){
+      const dates = df.map(r => new Date(r.dateMs));
+      const yPrice = df.map(r => Number(r.avgPrice));
+      const ySold = df.map(r => Number(r.soldItems));
+      const m = mean(yPrice);
+      const s = std(yPrice);
+      let outHiX=[], outHiY=[], outLoX=[], outLoY=[];
+      if (Number.isFinite(s) && s > 0){
+        for (let i=0;i<df.length;i++){
+          const z = (yPrice[i] - m) / s;
+          if (Math.abs(z) > 1.96){
+            if (z > 1.96){
+              outHiX.push(dates[i]); outHiY.push(yPrice[i]);
+            }else{
+              outLoX.push(dates[i]); outLoY.push(yPrice[i]);
+            }
+          }
+        }
+      }
+      const med = median(yPrice);
+      const bandTop = Math.min(m, med);
+      const bandBottom = Math.min(...yPrice.filter(v=>Number.isFinite(v)));
+      const x0 = Math.min(...df.map(r=>r.dateMs));
+      const x1 = Math.max(...df.map(r=>r.dateMs));
+      xBounds = [x0, x1];
+      const traceLine = {
+        type:"scatter",
+        mode:"lines",
+        x: dates,
+        y: yPrice,
+        name:"avgPrice",
+        hovertemplate: "Fecha: %{x|%Y-%m-%d}<br>Precio: %{y:,.2f}<extra></extra>",
+      };
+      const traceOutHi = {
+        type:"scatter",
+        mode:"markers",
+        x: outHiX,
+        y: outHiY,
+        name:"Inflaciones",
+        marker:{size:10, color:"#c62828"},
+        hovertemplate: "Fecha: %{x|%Y-%m-%d}<br>Precio: %{y:,.2f}<extra></extra>",
+      };
+      const traceOutLo = {
+        type:"scatter",
+        mode:"markers",
+        x: outLoX,
+        y: outLoY,
+        name:"Bajadas forzadas",
+        marker:{size:10, color:"#1565c0"},
+        hovertemplate: "Fecha: %{x|%Y-%m-%d}<br>Precio: %{y:,.2f}<extra></extra>",
+      };
+      const layoutPrice = {
+        title: {text:"Precio promedio", x:0.02, xanchor:"left"},
+        margin: {l:50,r:18,t:70,b:46},
+        paper_bgcolor:"#fff",
+        plot_bgcolor:"#fff",
+        xaxis: {
+          title: "Fecha",
+          range: [new Date(x0), new Date(x1)],
+          showgrid:true,
+          gridcolor:"rgba(229,231,235,.75)",
+          zeroline:false
+        },
+        yaxis: {
+          title: "Créditos",
+          showgrid:true,
+          gridcolor:"rgba(229,231,235,.75)",
+          zeroline:false
+        },
+        shapes: [{
+          type:"rect",
+          xref:"x", yref:"y",
+          x0: new Date(x0),
+          x1: new Date(x1),
+          y0: bandBottom,
+          y1: bandTop,
+          fillcolor:"rgba(46,125,50,.22)",
+          line:{width:0},
+          layer:"below"
+        }],
+        legend: {orientation:"h", y:1.08, x:0, font:{size:12}}
+      };
+
+      Plotly.react(plotPriceDiv, [traceLine, traceOutHi, traceOutLo], layoutPrice, {
+        displaylogo:false,
+        responsive:true
+      });
+      const traceBar = {
+        type:"bar",
+        x: dates,
+        y: ySold,
+        name:"soldItems",
+        marker:{color:"#1565c0"},
+        hovertemplate: "Fecha: %{x|%Y-%m-%d}<br>Ventas: %{y:,.0f}<extra></extra>",
+      };
+      const traceDots = {
+        type:"scatter",
+        mode:"markers",
+        x: dates,
+        y: ySold,
+        name:"Puntos",
+        marker:{size:6, color:"#1565c0"},
+        hovertemplate: "Fecha: %{x|%Y-%m-%d}<br>Ventas: %{y:,.0f}<extra></extra>",
+      };
+
+      const layoutVol = {
+        title: {text:"Volumen de ventas", x:0.02, xanchor:"left"},
+        margin: {l:50,r:18,t:70,b:46},
+        paper_bgcolor:"#fff",
+        plot_bgcolor:"#fff",
+        xaxis: {
+          title:"Fecha",
+          range: [new Date(x0), new Date(x1)],
+          showgrid:true,
+          gridcolor:"rgba(229,231,235,.75)",
+          zeroline:false
+        },
+        yaxis: {
+          title:"Ventas",
+          showgrid:true,
+          gridcolor:"rgba(229,231,235,.75)",
+          zeroline:false
+        },
+        legend: {orientation:"h", y:1.08, x:0, font:{size:12}}
+      };
+      Plotly.react(plotVolDiv, [traceBar, traceDots], layoutVol, {
+        displaylogo:false,
+        responsive:true
+      });
+      hookClampOnRelayout(plotPriceDiv);
+      hookClampOnRelayout(plotVolDiv);
+    }
+    function prepareTable(df){
+      dfView = df.map(r => ({
+        date: r.dateStr,
+        avgPrice: Number(r.avgPrice),
+        soldItems: Number(r.soldItems),
+        creditSum: Number(r.creditSum),
+        openOffers: Number(r.openOffers),
+        dateMs: r.dateMs
+      })).sort((a,b)=>a.dateMs-b.dateMs);
+      const totalRows = dfView.length;
+      totalPages = Math.max(1, Math.ceil(totalRows / pageSize));
+      currentPage = 1;
+      pageInput.value = "1";
+      totalPagesLabel.textContent = `/ ${totalPages}`;
+      renderPage(1);
+    }
+    function renderPage(p){
+      const totalRows = dfView.length;
+      totalPages = Math.max(1, Math.ceil(totalRows / pageSize));
+      let page = parseInt(p, 10);
+      if (!Number.isFinite(page) || page < 1) page = 1;
+      if (page > totalPages) page = totalPages;
+      currentPage = page;
+      pageInput.value = String(page);
+      totalPagesLabel.textContent = `/ ${totalPages}`;
+      const start = (page - 1) * pageSize;
+      const end = Math.min(start + pageSize, totalRows);
+      tableBody.innerHTML = "";
+      const slice = dfView.slice(start, end);
+      for (const r of slice){
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${escapeHtml(r.date)}</td>
+          <td>${Number.isFinite(r.avgPrice) ? fmtNum(r.avgPrice,2) : "—"}</td>
+          <td>${Number.isFinite(r.soldItems) ? fmtInt(r.soldItems) : "—"}</td>
+          <td>${Number.isFinite(r.creditSum) ? fmtInt(r.creditSum) : "—"}</td>
+          <td>${Number.isFinite(r.openOffers) ? fmtInt(r.openOffers) : "—"}</td>
+        `;
+        tableBody.appendChild(tr);
+      }
+      pageLabel.textContent = `Mostrando ${start+1}-${end} de ${totalRows} | Total páginas: ${totalPages}`;
+    }
+    function downloadCSV(){
+      if (!dfView.length){
+        showToast("Sin datos", "Primero carga un furni para poder exportar CSV.");
+        return;
+      }
+      const classname = stateVars.meta_classname || "furni";
+      const hotel = hotelSelect.value || "com";
+      const days = daysInput.value || "all";
+      const defaultName = `habbo_${classname}_${hotel}_${days}d.csv`.replaceAll(" ","_");
+      const header = ["date","avgPrice","soldItems","creditSum","openOffers"];
+      const lines = [header.join(",")];
+      for (const r of dfView){
+        const row = [
+          r.date,
+          Number.isFinite(r.avgPrice) ? r.avgPrice : "",
+          Number.isFinite(r.soldItems) ? r.soldItems : "",
+          Number.isFinite(r.creditSum) ? r.creditSum : "",
+          Number.isFinite(r.openOffers) ? r.openOffers : ""
+        ];
+        lines.push(row.join(","));
+      }
+      const csv = "\uFEFF" + lines.join("\n"); // utf-8-sig
+      const blob = new Blob([csv], {type:"text/csv;charset=utf-8"});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = defaultName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      showToast("CSV descargado", defaultName);
+    }
+    const HELP_TEXT = `
+ 1) Información general
+• Hotel: el servidor seleccionado (es, com, br, etc.).
+• Días: el período que estás analizando. Todo lo que ves se calcula SOLO con ese rango.
+
+────────────────────────────────────────
+ 2) Gráfico de “Precio promedio”
+• Línea (precio): promedio diario (o por punto) del precio reportado.
+• Puntos rojos (inflaciones): valores excepcionalmente ALTOS frente al comportamiento típico.
+  - Interpretación: alguien pudo haber comprado/vendido a un precio anormalmente alto para “inflar” el valor.
+• Puntos azules (bajadas forzadas): valores excepcionalmente BAJOS.
+  - Interpretación: posible “dump” o venta a precio muy bajo para “tumbar” el mercado.
+
+Recomendación:
+• Si ves muchos rojos, evita comprar “en pánico” (FOMO): el precio puede estar inflado.
+• Si ves muchos azules, puede ser oportunidad, pero revisa liquidez (ventas/día).
+
+────────────────────────────────────────
+ 3) Estadísticas de precio
+• Precio mínimo: el valor más bajo del período.
+  - Útil como “piso histórico” en el rango, pero puede incluir bajadas forzadas.
+• Precio máximo: el valor más alto del período.
+  - Útil como “techo” del rango, pero puede incluir inflaciones.
+• Precio promedio: media aritmética.
+  - Sensible a manipulaciones (inflaciones/bajadas).
+• Mediana: el valor central.
+  - Más robusta que la media cuando hay extremos.
+• Percentil 95: el 95% de los puntos está por debajo de este valor.
+  - Útil para estimar el “techo usual” sin tomar el máximo absoluto.
+  - Si es muy distinto al máximo, probablemente hubo inflaciones fuertes.
+• Último precio (serie): el último dato del histórico.
+  - Refleja el estado más reciente del período mostrado.
+
+• Precio recomendado de compra: rango sugerido basado en el rectángulo verde del gráfico.
+  - Inferior: Precio mínimo del período.
+  - Superior: el menor entre (Promedio, Mediana).
+  - Interpretación: zona de compra “razonable” si buscas entrar sin pagar inflaciones.
+
+────────────────────────────────────────
+ 4) Precio justo (recortado 10%)
+• Qué es: el promedio calculado ignorando el 10% más bajo y el 10% más alto.
+• Para qué sirve: reduce el efecto de inflaciones/bajadas y se acerca al “valor real” del mercado.
+Recomendación:
+• Si el precio justo está MUY por debajo del promedio, hay manipulación al alza.
+• Si está MUY por encima del promedio, hay presión bajista o ventas anormalmente baratas.
+
+────────────────────────────────────────
+ 5) Riesgo de volatilidad (%)
+• Fórmula: (desviación estándar / promedio) × 100
+• Interpretación:
+  - < 5%: muy estable
+  - 5%–15%: normal
+  - > 15%: alto riesgo (sube/baja rápido)
+Recomendación:
+• Volatilidad alta + baja liquidez = difícil vender al precio que esperas.
+
+────────────────────────────────────────
+ 6) Sesgo (media − mediana)
+• Si es positivo: la media está “jalada” hacia arriba por inflaciones.
+• Si es negativo: la media está “jalada” hacia abajo por bajadas.
+• Si es cercano a 0: mercado más balanceado.
+Recomendación:
+• Sesgo positivo fuerte: usa mediana o precio justo para decidir, no el promedio.
+
+────────────────────────────────────────
+ 7) Número de inflaciones / bajadas forzadas
+• Inflaciones: cuenta de puntos rojos (zscore > 1.96) en el período.
+• Bajadas forzadas: cuenta de puntos azules (zscore < -1.96).
+Recomendación:
+• Muchos eventos = mercado “ruidoso” o manipulado. Confía más en mediana y precio justo.
+
+────────────────────────────────────────
+ 8) Estadísticas de volumen (ventas)
+• Ventas totales: cuántas veces se vendió en el período.
+• Ventas promedio por punto: promedio de ventas por día/punto.
+• Máximo en un punto: el pico máximo de ventas en un solo día/punto.
+• Puntos en la serie: cuántos registros hay en el histórico mostrado.
+• Créditos totales (creditSum): suma total de créditos movidos.
+  - Útil para comparar “tamaño” del mercado entre furnis.
+
+────────────────────────────────────────
+ 9) Liquidez (ventas por día)
+• Qué es: ventas totales / número de días del rango.
+• Interpretación:
+  - Alta liquidez: compras y vendes más fácil.
+  - Baja liquidez: te puedes quedar “atorada” con el furni.
+Recomendación:
+• Para invertir, prioriza liquidez. Para coleccionar, la liquidez importa menos.
+
+────────────────────────────────────────
+ 10) Presión vendedora (ofertas/ventas)
+• Qué es: (promedio openOffers) / (promedio soldItems)
+• Interpretación:
+  - Alto: muchas ofertas y pocas ventas → presión bajista.
+  - Bajo: pocas ofertas y buenas ventas → soporte o presión alcista.
+Recomendación:
+• Si presión vendedora es alta, negocia por debajo de la zona recomendada o espera.
+`.trim();
+
+    async function fetchMarketHistory({name, hotel, days}){
+      const url = new URL(ENDPOINT_MARKET_HISTORY);
+      // al menos name/classname/description requerido. Aquí usamos name.
+      url.searchParams.set("name", name);
+      url.searchParams.set("hotel", hotel || "com");
+      url.searchParams.set("days", days || "all");
+      const res = await fetch(url.toString());
+      if (!res.ok){
+        const txt = await res.text().catch(()=> "");
+        throw new Error(`HTTP ${res.status} — ${txt.slice(0,200)}`);
+      }
+      return await res.json();
+    }
+    function buildLabel(it){
+      const cn = it?.ClassName ?? "—";
+      const fn = it?.FurniName ?? "—";
+      const ft = it?.FurniType ?? it?.furni_type ?? "—";
+      const line = it?.Line ?? "—";
+      return `${fn} | classname=${cn} | type=${ft} | line=${line}`;
+    }
+    function parseHistoryToDF(history){
+      // history: array de arrays [avgPrice, soldItems, creditSum, openOffers, timestamp]
+      const rows = [];
+      for (const entry of history || []){
+        if (!Array.isArray(entry) || entry.length < 5) continue;
+        const avgPrice = Number(entry[0]);
+        const soldItems = Number(entry[1]);
+        const creditSum = Number(entry[2]);
+        const openOffers = Number(entry[3]);
+        const ts = Number(entry[4]);
+        if (!Number.isFinite(ts)) continue;
+        const dateMs = (ts > 10_000_000_000) ? ts : ts * 1000;
+        const dateStr = fmtDate(dateMs);
+        if (!Number.isFinite(avgPrice)) continue;
+        rows.push({
+          avgPrice,
+          soldItems: Number.isFinite(soldItems) ? soldItems : 0,
+          creditSum: Number.isFinite(creditSum) ? creditSum : 0,
+          openOffers: Number.isFinite(openOffers) ? openOffers : 0,
+          timestamp: ts,
+          dateMs,
+          dateStr,
+        });
+      }
+      rows.sort((a,b)=>a.dateMs-b.dateMs);
+      return rows;
+    }
+    function applyDaysFilter(df, daysRaw){
+      const raw = String(daysRaw || "").trim().toLowerCase();
+      if (raw === "all") return df.slice();
+      const n = Number(raw);
+      if (!Number.isFinite(n) || n <= 0) return df.slice();
+      const endMs = Math.max(...df.map(r=>r.dateMs));
+      const startMs = endMs - (n - 1) * 24*60*60*1000;
+      return df.filter(r=>r.dateMs >= startMs);
+    }
+    function computeAndSetStats(df, meta){
+      setVar("meta_nombre", String(meta.furniName || "—"));
+      setVar("meta_classname", String(meta.classname || "—"));
+      setVar("meta_tipo", String(meta.furniType || "—"));
+      setVar("meta_hotel", String(meta.hotel || "—"));
+      setVar("meta_actualizado", String(meta.lastUpdated || "—"));
+      classnameCode.textContent = `classname=${meta.classname || "—"}`;
+      if (!df.length){
+        setVar("meta_rango", "—");
+        return;
+      }
+      const d0 = df[0].dateMs;
+      const d1 = df[df.length-1].dateMs;
+      setVar("meta_rango", `${fmtDate(d0)} a ${fmtDate(d1)}`);
+      const prices = df.map(r=>Number(r.avgPrice)).filter(v=>Number.isFinite(v));
+      const sold = df.map(r=>Number(r.soldItems)).filter(v=>Number.isFinite(v));
+      const credits = df.map(r=>Number(r.creditSum)).filter(v=>Number.isFinite(v));
+      const offers = df.map(r=>Number(r.openOffers)).filter(v=>Number.isFinite(v));
+      const pmin = Math.min(...prices);
+      const pmax = Math.max(...prices);
+      const pmean = mean(prices);
+      const pmed = median(prices);
+      const p95 = quantile(prices, 0.95);
+      const plast = prices[prices.length-1];
+      const sp = std(prices);
+      let inflaciones = 0, bajadas = 0;
+      if (Number.isFinite(sp) && sp > 0){
+        for (const p of prices){
+          const z = (p - pmean) / sp;
+          if (z > 1.96) inflaciones++;
+          if (z < -1.96) bajadas++;
+        }
+      }
+      setVar("inf_count", fmtInt(inflaciones));
+      setVar("defl_count", fmtInt(bajadas));
+      const cap = Math.min(pmean, pmed);
+      setVar("p_reco", `${fmtNum(pmin,2)} – ${fmtNum(cap,2)}`);
+      const q10 = quantile(prices, 0.10);
+      const q90 = quantile(prices, 0.90);
+      const trimmed = prices.filter(v => v >= q10 && v <= q90);
+      const pTrim = mean(trimmed);
+      setVar("p_trim", fmtNum(pTrim,2));
+      const risk = (Number.isFinite(sp) && Number.isFinite(pmean) && pmean > 0) ? (sp/pmean*100) : 0.0;
+      setVar("vol_risk", fmtNum(risk,2));
+      const bias = Number.isFinite(pmean) && Number.isFinite(pmed) ? (pmean - pmed) : NaN;
+      setVar("bias_mm", fmtNum(bias,2));
+      const totalPts = Math.max(1, df.length);
+      setVar("inf_rate", fmtNum((inflaciones/totalPts)*100,2) + "%");
+      setVar("defl_rate", fmtNum((bajadas/totalPts)*100,2) + "%");
+      const daysSpan = Math.max(1, Math.round((d1 - d0) / (24*60*60*1000)) + 1);
+      const liq = (sold.reduce((a,b)=>a+b,0)) / daysSpan;
+      setVar("liq_per_day", fmtNum(liq,2));
+      const offersMean = mean(offers) || 0.0;
+      const salesMean = mean(sold) || 0.0;
+      const pressure = (salesMean > 0) ? (offersMean / salesMean) : Infinity;
+      setVar("sell_pressure", (pressure === Infinity) ? "∞" : fmtNum(pressure,2));
+      setVar("p_min", fmtNum(pmin,2));
+      setVar("p_max", fmtNum(pmax,2));
+      setVar("p_prom", fmtNum(pmean,2));
+      setVar("p_med", fmtNum(pmed,2));
+      setVar("p_p95", fmtNum(p95,2));
+      setVar("p_ult", fmtNum(plast,2));
+      const vtotal = sold.reduce((a,b)=>a+b,0);
+      const vmean = mean(sold);
+      const vmax = Math.max(...sold, 0);
+      const vpoints = df.length;
+      const ctotal = credits.reduce((a,b)=>a+b,0);
+      setVar("v_total", fmtInt(vtotal));
+      setVar("v_prom", fmtNum(vmean,2));
+      setVar("v_max", fmtInt(vmax));
+      setVar("v_dias", fmtInt(vpoints));
+      setVar("c_total", fmtInt(ctotal));
+    }
+    async function loadImage(classname){
+      if (!classname){
+        furniImg.removeAttribute("src");
+        imgStatus.textContent = "—";
+        return;
+      }
+      imgStatus.textContent = "Cargando imagen…";
+      furniImg.alt = classname;
+      const url = ENDPOINT_IMAGE(classname);
+      try{
+        const res = await fetch(url);
+        if (res.status === 202){
+          furniImg.removeAttribute("src");
+          imgStatus.textContent = "Imagen en proceso (202). Reintenta en unos segundos.";
+          return;
+        }
+        if (!res.ok){
+          furniImg.removeAttribute("src");
+          imgStatus.textContent = `No se pudo cargar imagen (HTTP ${res.status}).`;
+          return;
+        }
+        const blob = await res.blob();
+        const objectUrl = URL.createObjectURL(blob);
+        furniImg.src = objectUrl;
+        imgStatus.textContent = "Imagen cargada.";
+      }catch(e){
+        furniImg.removeAttribute("src");
+        imgStatus.textContent = "Error cargando imagen.";
+      }
+    }
+    async function onSearch(){
+      const name = nameInput.value.trim();
+      if (!name){
+        showToast("Falta info", "Escribe el nombre del furni (ej: Trono).");
+        nameInput.focus();
+        return;
+      }
+      resetCards();
+      statusText.textContent = "Buscando…";
+      searchBtn.disabled = true;
+      loadSelectedBtn.disabled = true;
+      resultsSelect.disabled = true;
+      openTableBtn.disabled = true;
+      const hotel = hotelSelect.value;
+      const days = daysInput.value.trim() || "all";
+      try{
+        const itemsAll = await fetchMarketHistory({name, hotel, days});
+        const legacy = (itemsAll || []).filter(isLegacyFurni);
+        searchResults = legacy;
+        if (!searchResults.length){
+          resultsSelect.innerHTML = `<option>—</option>`;
+          resultsSelect.disabled = true;
+          loadSelectedBtn.disabled = true;
+          statusText.textContent = "Sin resultados.";
+          showToast("Sin resultados", "No se encontraron resultados para esa búsqueda.");
+          return;
+        }
+        resultsSelect.innerHTML = "";
+        for (let i=0;i<searchResults.length;i++){
+          const it = searchResults[i];
+          const opt = document.createElement("option");
+          opt.value = String(i);
+          opt.textContent = buildLabel(it);
+          resultsSelect.appendChild(opt);
+        }
+        resultsSelect.disabled = false;
+        resultsSelect.value = "0";
+        loadSelectedBtn.disabled = false;
+
+        statusText.textContent = `Resultados: ${searchResults.length}. Selecciona y carga.`;
+        showToast("Resultados listos", `${searchResults.length} encontrados`);
+      }catch(e){
+        statusText.textContent = "Error buscando.";
+        showToast("Error buscando", String(e?.message || e));
+      }finally{
+        searchBtn.disabled = false;
+      }
+    }
+    function onLoadSelected(){
+      if (!searchResults.length){
+        showToast("Sin resultados", "Primero haz una búsqueda.");
+        return;
+      }
+      const idx = parseInt(resultsSelect.value, 10);
+      if (!Number.isFinite(idx) || idx < 0 || idx >= searchResults.length){
+        showToast("Selecciona", "Selecciona un resultado válido.");
+        return;
+      }
+      const item = searchResults[idx];
+      const classname = item?.ClassName ?? "";
+      const furniName = item?.FurniName ?? "—";
+      const furniType = item?.FurniType ?? item?.furni_type ?? "—";
+      const market = item?.marketData ?? {};
+      const history = market?.history ?? [];
+      const lastUpdated = market?.lastUpdated ?? market?.last_updated ?? "—";
+      if (!history || !history.length){
+        showToast("Sin histórico", "Este furni no trae histórico en la respuesta.");
+        return;
+      }
+      statusText.textContent = "Procesando datos…";
+      let df = parseHistoryToDF(history);
+      df = applyDaysFilter(df, daysInput.value);
+      if (!df.length){
+        showToast("Sin datos", "El histórico quedó vacío tras limpiar valores.");
+        statusText.textContent = "Sin datos.";
+        return;
+      }
+      dfCurrent = df.slice();
+      openTableBtn.disabled = false;
+      computeAndSetStats(df, {
+        classname,
+        furniName,
+        furniType,
+        hotel: hotelSelect.value,
+        lastUpdated
+      });
+      plot(df);
+      const pred = predictHeuristico(df, 30);
+      setPred(pred.label, pred.prob);
+      prepareTable(df);
+      loadImage(classname);
+      statusText.textContent = "Listo.";
+      showToast("Cargado", buildLabel(item));
+    }
+    function openModal(el){ el.style.display = "flex"; }
+    function closeModal(el){ el.style.display = "none"; }
+    function openHelp(){
+      helpTextArea.value = HELP_TEXT;
+      openModal(helpModal);
+    }
+    function openTable(){
+      if (!dfCurrent.length){
+        showToast("Sin datos", "Primero carga un furni para poder ver la tabla.");
+        return;
+      }
+      openModal(tableModal);
+      renderPage(currentPage);
+    }
+    helpModal.addEventListener("click", (e)=>{ if (e.target === helpModal) closeModal(helpModal); });
+    tableModal.addEventListener("click", (e)=>{ if (e.target === tableModal) closeModal(tableModal); });
+    renderPairs(metaPairs, META_KEYS);
+    renderPairs(pricePairs, PRICE_KEYS);
+    renderPairs(volPairs, VOL_KEYS);
+    clearPlots();
+    resetCards();
+    searchBtn.addEventListener("click", onSearch);
+    loadSelectedBtn.addEventListener("click", onLoadSelected);
+    resetBtn.addEventListener("click", resetCards);
+    nameInput.addEventListener("keydown", (e)=>{
+      if (e.key === "Enter"){
+        onSearch();
+      }
+    });
+    helpBtn.addEventListener("click", openHelp);
+    closeHelpBtn.addEventListener("click", ()=>closeModal(helpModal));
+    closeHelpBtn2.addEventListener("click", ()=>closeModal(helpModal));
+    copyHelpBtn.addEventListener("click", async ()=>{
+      try{
+        await navigator.clipboard.writeText(helpTextArea.value);
+        showToast("Copiado", "Texto de ayuda copiado al portapapeles.");
+      }catch(e){
+        showToast("No se pudo copiar", "Tu navegador bloqueó el portapapeles.");
+      }
+    });
+    openTableBtn.addEventListener("click", openTable);
+    closeTableBtn.addEventListener("click", ()=>closeModal(tableModal));
+    closeTableBtn2.addEventListener("click", ()=>closeModal(tableModal));
+    downloadCsvBtn.addEventListener("click", downloadCSV);
+    prevPageBtn.addEventListener("click", ()=>renderPage(currentPage - 1));
+    nextPageBtn.addEventListener("click", ()=>renderPage(currentPage + 1));
+    pageInput.addEventListener("keydown", (e)=>{
+      if (e.key === "Enter"){
+        renderPage(pageInput.value);
+      }
+    });
+    pageInput.addEventListener("change", ()=>renderPage(pageInput.value));
+    showToast("Tip", "Escribe el nombre, selecciona hotel/días y da click en Buscar.");
+  </script>
+</body>
+</html>
