@@ -1,4 +1,4 @@
-# PixelPrice por biojaquez (Sakate en .ES)
+# PixelPrice por Sakate en .ES
 
 PixelPrice es una app web para analizar el mercado de furnis en Habbo usando histórico de precios y ventas. Te permite buscar un furni por nombre, filtrar por hotel y rango de días, comparar resultados con el mismo nombre, y ver gráficos interactivos + métricas que ayudan a decidir si conviene comprar, esperar o evitar entrar en un precio inflado.
 
